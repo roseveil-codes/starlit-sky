@@ -1,0 +1,121 @@
+// By jennie!
+
+noStroke();
+var stars = [];
+for (var i = 0; i < 250; i++) {
+    stars.push({
+        x: random(width),
+        y: random(height),
+        size: random(1, 3),
+        alpha: random(0, 255),
+        speed: random(3, 5),
+        fadingOut: random() > 0.5
+    });
+}
+
+var shootingStar = null;
+
+var drawGradient = function() {
+    for (var y = 0; y < height; y++) {
+        var r = map(y, 0, height, 90, 10);
+        var g = map(y, 0, height, 53, -62);
+        var b = map(y, 0, height, 200, 11);
+        fill(r, g, b);
+        rect(0, y, width, 1);
+    }
+};
+
+var createShootingStar = function() {
+    shootingStar = {
+        x: random(width),
+        y: random(height/2),
+        size: random(5, 8),
+        alpha: 255,
+        speedX: random(5, 8),
+        speedY: random(1, 3),
+        tail: [],
+        glitter: []
+    };
+};
+
+draw = function() {
+    drawGradient();
+    
+    fill(0, 0, 0, 20);
+    rect(0, 0, width, height);
+    
+    for (var i = 0; i < stars.length; i++) {
+        var s = stars[i];
+        if (s.fadingOut) {
+            s.alpha -= s.speed;
+            if (s.alpha <= 50) {
+                s.fadingOut = false;
+            }
+        } else {
+            s.alpha += s.speed;
+            if (s.alpha >= 255) {
+                s.fadingOut = true;
+            }
+        }
+        
+        fill(255, 255, 255, s.alpha/5);
+        ellipse(s.x, s.y, s.size * 3, s.size * 3);
+        fill(255, 255, random(200, 255), s.alpha);
+        ellipse(s.x, s.y, s.size, s.size);
+    }
+    
+    if (shootingStar === null && random(1) < 0.005) {
+        createShootingStar();
+    }
+    
+    if (shootingStar !== null) {
+        shootingStar.tail.push({x: shootingStar.x, y: shootingStar.y, alpha: shootingStar.alpha});
+        if (shootingStar.tail.length > 20) {
+            shootingStar.tail.shift();
+        }
+        for (var i = 0; i < shootingStar.tail.length; i++) {
+        var t = shootingStar.tail[i];
+        fill(255, 255, 255, t.alpha / 10);
+        ellipse(t.x, t.y, 10, 5);
+    }
+    
+        shootingStar.glitter.push({
+            x: shootingStar.x + random(-5, 5),
+            y: shootingStar.y + random(-5, 5),
+            size: random(1, 2),
+            alpha: shootingStar.alpha
+        });
+        
+        for (var i = shootingStar.glitter.length - 1; i >= 0; i--) {
+            var g = shootingStar.glitter[i];
+            g.alpha -= 10;
+            g.y += 0.3;
+            if (g.alpha <= 0) {
+                shootingStar.glitter.splice(i, 1);
+            }
+        }
+        
+        if (shootingStar.glitter.length > 50) {
+            shootingStar.glitter.shift();
+        }
+        
+        for (var i = 0; i < shootingStar.glitter.length; i++) {
+            var g = shootingStar.glitter[i];
+            fill(255, 255, 255, g.alpha / 2);
+            ellipse(g.x, g.y, g.size, g.size);
+        }
+    
+    fill(255, 255, 255, shootingStar.alpha / 4);
+    ellipse(shootingStar.x, shootingStar.y, shootingStar.size * 4, shootingStar.size * 2);
+    fill(255, 255, 255, shootingStar.alpha);
+    ellipse(shootingStar.x, shootingStar.y, shootingStar.size * 2, shootingStar.size);
+    
+    shootingStar.x += shootingStar.speedX;
+    shootingStar.y += shootingStar.speedY;
+    shootingStar.alpha -= 5;
+    
+    if (shootingStar.alpha <= 0 || shootingStar.x > width || shootingStar.y > height) {
+        shootingStar = null;
+    }
+    }
+};
